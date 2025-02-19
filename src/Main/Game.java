@@ -36,8 +36,8 @@ public class Game implements Runnable{
 	
 	private void initClasses() {
 		levelManager = new LevelManager(this);
-		player = new Player(50 ,100 , (int)(50*scale) , (int)(50*scale)
-				, 100, 100);
+		player = new Player(50 ,100 , (int)(40*scale) , (int)(45*scale)
+				, 105, 100);
 		player.LoadlvData(levelManager.getCurretLevel().getLevelData());
 		
 	}

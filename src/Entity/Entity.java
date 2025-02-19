@@ -3,44 +3,39 @@ package Entity;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 
 public abstract class Entity {
 	
 	protected  float x,y;
-	protected int width , height, marginX, marginY;
-	protected Rectangle hitBox;
+	protected int width , height;
+	protected float marginX, marginY;
+	protected Rectangle2D.Float hitBox;
 	
 	public Entity(float x, float y ,int width , int height) {
 		this(x,  y , width ,  height , 0,  0);
 	}
 	
-	public Entity(float x, float y ,int width , int height ,int marginX, int marginY) {
+	public Entity(float x, float y ,int width , int height ,float marginX, float marginY) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.marginX = marginX;
 		this.marginY = marginY;
-		inithitbox();
 	}
 	
 	protected void drawHitBox(Graphics g) {
 		g.setColor(Color.YELLOW);
-		g.drawRect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+		g.drawRect((int)(hitBox.x), (int) (hitBox.y) , (int) hitBox.width, (int) hitBox.height);
 	}
 
-	private void inithitbox() {
-		hitBox = new Rectangle((int) (x + marginX),(int) (y + marginY) 
+	protected void inithitbox(float x, float y ,float width , float height ,float marginX, float marginY) {
+		hitBox = new Rectangle2D.Float(x + marginX, y + marginY
 				, width , height);
-		
 	}
-	
-	public void updateHitBox() {
-		hitBox.x = (int) (x + marginX);
-		hitBox.y = (int) (y + marginY);
-	}
-	
-	public Rectangle getHitBox() {
+
+	public Rectangle2D.Float getHitBox() {
 		return hitBox;
 	}
 }

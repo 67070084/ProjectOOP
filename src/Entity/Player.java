@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.print.attribute.standard.PrinterInfo;
 
 import utilz.LoadSave;
+
+import Main.Game;
 
 public class Player extends Entity {
 	
@@ -22,67 +25,118 @@ public class Player extends Entity {
     private int playerDir = -1;
     private  boolean moving = false;
     private boolean attack = false;
-    private boolean  left,up, right , down;
+    private boolean  left,up, right , down ,jump;
     private float playerSpeed = 2f;
     private int[][] lvlData;
+    
+    //gravity setting 
+    private float airSpeed = 0f;
+    private float gravity = 0.04f * Game.scale;
+    private float jumpSpeed = -2.25f * Game.scale;
+    private float fallSpeedAfterCOllision = 0.5f * Game.scale;
+    private boolean inAir =  false;
+    
 
 	public Player(float x, float y ,int width , int height) {
 		this(x,y , width , height, 0, 0);
 	}
 	
-	public Player(float x, float y ,int width , int height ,int marginX, int marginY) {
+	public Player(float x, float y ,int width , int height ,float marginX, float marginY) {
 		super(x,y , width , height, marginX, marginY);
+		inithitbox(x,y , (float) width , (float) height, marginX, marginY);
 		loadAnimation();
 	}
 	
 	
 	public void update() {
 		updatePos();
-		updateHitBox();
 		updateAnimatetionTrick();
         setAnimation();
-      
 	}
 	
 	public void render(Graphics g) {
-		g.drawImage(animation[player_Acotion][aniIndex], (int)x , (int)y ,256 , 256 , null);
+		g.drawImage(animation[player_Acotion][aniIndex], (int)(hitBox.x - marginX), (int)(hitBox.y - marginY) ,256 , 256 , null);
 		drawHitBox(g);
 	}
 	
 	private void updatePos() {
 		
 		moving = false;
-		if(!left && !right && !up && !down) {
+		
+		if(jump) {
+			jump();
+		}
+		
+		if(!left && !right && !inAir) {
 			return;
 		}
 		
-		float xSpeed = 0, ySpeed = 0;
+		float xSpeed = 0;
 		
-		if(left && !right) {
-			xSpeed = -playerSpeed;
+		if(left) {
+			xSpeed -= playerSpeed;
 
-		}else if(right && !left){
-			xSpeed = playerSpeed;
 		}
 		
-		if(up && !down) {
-			ySpeed = -playerSpeed;
-		}else if(down && !up){
-			ySpeed = playerSpeed;
+		if(right){
+			xSpeed += playerSpeed;
 		}
 		
-		if(CanMove((x + marginX) + xSpeed , (y + marginY) + ySpeed , width , height , lvlData)) {
-			this.x += xSpeed;
-			this.y += ySpeed;
-			moving = true;
+		if(!inAir) {
+			if(!IsEntityOnFloor(hitBox, lvlData)) {
+				inAir = true;
+			}
 		}
+		
+		if(inAir) {
+			if(CanMove(hitBox.x, hitBox.y + airSpeed, hitBox.width, hitBox.height, lvlData)) {
+				hitBox.y += airSpeed;
+				airSpeed += gravity;
+				updateXPos(xSpeed);
+			}else {
+				hitBox.y = GetEntityYPos(hitBox , airSpeed);
+				System.out.println("hitBox Y A:" + hitBox.y);
+				if(airSpeed > 0) {
+					resetInAir();
+				}else {
+					airSpeed = fallSpeedAfterCOllision;
+				}
+				updateXPos(xSpeed);
+			}
+		}else {
+			updateXPos(xSpeed);
+		}
+		
+		moving = true;
+		
+		
+	}
+	
+	private void jump() {
+		if(inAir) {
+			return;
+		}
+		inAir = true;
+		airSpeed = jumpSpeed;
+	}
+
+	private void resetInAir() {
+		inAir = false;
+		airSpeed = 0;
+	}
+
+	public void updateXPos(float xSpeed) {
+		if(CanMove(hitBox.x + xSpeed , hitBox.y, width , height , lvlData)) {
+			hitBox.x += xSpeed;
+		}
+		
 	}
 	
 	public void LoadlvData(int[][] lvlvData){
-		this.lvlData =lvlvData;
+		this.lvlData = lvlvData;
+		if (!IsEntityOnFloor(hitBox, lvlData))
+			inAir = true;
 	}
-    
-
     
     private void updateAnimatetionTrick() {
 		aniTrick++;
@@ -173,6 +227,8 @@ public class Player extends Entity {
 	public void setDown(boolean down) {
 		this.down = down;
 	}
-	
+	public void setJump(boolean jump) {
+		this.jump = jump;
+	}
 	
 }

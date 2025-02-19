@@ -28,6 +28,9 @@ public class KeyHandler implements KeyListener{
 			case KeyEvent.VK_S:
 				gamepanel.getGame().getPlayer().setDown(false);
 				break;
+			case KeyEvent.VK_SPACE:
+				gamepanel.getGame().getPlayer().setJump(false);
+				break;
         }
     }
     
@@ -47,6 +50,9 @@ public class KeyHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_S:
 				gamepanel.getGame().getPlayer().setDown(true);
+				break;
+			case KeyEvent.VK_SPACE:
+				gamepanel.getGame().getPlayer().setJump(true);
 				break;
         }
 
